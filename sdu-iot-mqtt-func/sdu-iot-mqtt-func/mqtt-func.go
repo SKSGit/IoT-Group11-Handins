@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -79,7 +80,7 @@ func dispatch_sample(client mqtt.Client, message mqtt.Message) {
 	//append to file
 	f, err := os.OpenFile("in_func.txt",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	d1 := fmt.Sprintf(topic+"%f"+" : "+"%f"+"\n", sample.Time, sample.Value)
+	d1 := fmt.Sprintf(topic+":"+" %f "+" : "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
 	check(err)
 	defer f.Close()
 	if _, err := f.WriteString(d1); err != nil {
@@ -105,14 +106,14 @@ func dispatch_sample(client mqtt.Client, message mqtt.Message) {
 		}
 
 		// define topic names
-		topic_temp := "siggen/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/temp"
-		topic_rhum := "siggen/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/rhum"
+		topic_temp := "mavg/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/temp"
+		topic_rhum := "mavg/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/rhum"
 		topic_ahum := "func/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/ahum"
 
 		go publish(topic_ahum, channel_ahum)
 		f, err := os.OpenFile("out_func.txt",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		d1 := fmt.Sprintf(topic_ahum+"%f"+" : "+"%f"+"\n", sample.Time, sample.Value)
+		d1 := fmt.Sprintf(topic_ahum+":"+" %f "+" : "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
 		check(err)
 		defer f.Close()
 		if _, err := f.WriteString(d1); err != nil {

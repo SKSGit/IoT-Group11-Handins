@@ -99,7 +99,7 @@ func produce(client mqtt.Client, signal Signal, t0 float64) {
 			//append to file
 			f, err := os.OpenFile("siglog.txt",
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			d1 := fmt.Sprintf(signal.Topic+" : "+"%f"+"\n", new_sample.Time)
+			d1 := fmt.Sprintf(signal.Topic+" : "+"%f"+":"+"%f"+"\n", float64(time.Now().UnixNano()), new_sample)
 			check(err)
 			defer f.Close()
 			if _, err := f.WriteString(d1); err != nil {

@@ -1,0 +1,6 @@
+[submodule "handin2/bl_iot_sdk"]
+	path = handin2/bl_iot_sdk
+	url = git@github.com:pine64/bl_iot_sdk.git
+[submodule "handin2/bl60x-flash"]
+	path = handin2/bl60x-flash
+	url = git@github.com:stschake/bl60x-flash.git

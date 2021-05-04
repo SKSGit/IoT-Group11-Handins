@@ -30,6 +30,14 @@ func publish(topic string, channel chan Sample) {
 	for sample := range channel {
 		message, _ := json.Marshal(sample)
 		client.Publish(topic, 1, false, message)
+		f, err := os.OpenFile("out_func.txt",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		d1 := fmt.Sprintf(topic+"\t"+" %f "+" \t "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
+		check(err)
+		defer f.Close()
+		if _, err := f.WriteString(d1); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -80,7 +88,7 @@ func dispatch_sample(client mqtt.Client, message mqtt.Message) {
 	//append to file
 	f, err := os.OpenFile("in_func.txt",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	d1 := fmt.Sprintf(topic+":"+" %f "+" : "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
+	d1 := fmt.Sprintf(topic+"\t"+" %f "+" \t "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
 	check(err)
 	defer f.Close()
 	if _, err := f.WriteString(d1); err != nil {
@@ -111,14 +119,7 @@ func dispatch_sample(client mqtt.Client, message mqtt.Message) {
 		topic_ahum := "func/" + strings.Join(tparts[1:len(tparts)-1], "/") + "/ahum"
 
 		go publish(topic_ahum, channel_ahum)
-		f, err := os.OpenFile("out_func.txt",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		d1 := fmt.Sprintf(topic_ahum+":"+" %f "+" : "+" %f "+"%f"+"\n", float64(time.Now().UnixNano()), sample.Time, sample.Value)
-		check(err)
-		defer f.Close()
-		if _, err := f.WriteString(d1); err != nil {
-			log.Println(err)
-		}
+
 		go ahum(channel_temp, channel_rhum, channel_ahum)
 
 		dispatch[topic_temp] = channel_temp

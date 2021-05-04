@@ -57,7 +57,7 @@ func mavg(topic string, channel chan Sample) {
 		client.Publish(otopic, 1, false, message)
 		f, in_err := os.OpenFile("mavg_out_log.txt",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		d1 := fmt.Sprintf(otopic+" : "+"%f"+":"+string(message)+"\n", float64(time.Now().UnixNano()))
+		d1 := fmt.Sprintf(otopic+" \t "+"%f"+"\t"+string(message)+"\n", float64(time.Now().UnixNano()))
 		check(in_err)
 		defer f.Close()
 		if _, in_err := f.WriteString(d1); in_err != nil {
@@ -78,7 +78,7 @@ func dispatch_sample(client mqtt.Client, message mqtt.Message) {
 	var topic string = message.Topic()
 	f, in_err := os.OpenFile("mavg_in_log.txt",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	d1 := fmt.Sprintf(topic+" : "+"%f"+" : "+"%f"+"\n", float64(time.Now().UnixNano()), string(message.Payload()))
+	d1 := fmt.Sprintf(topic+" \t "+"%f"+" \t "+"%f"+"\n", float64(time.Now().UnixNano()), string(message.Payload()))
 	check(in_err)
 	defer f.Close()
 	if _, in_err := f.WriteString(d1); in_err != nil {

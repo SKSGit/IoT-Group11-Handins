@@ -12,13 +12,6 @@
 #define ADC_CHANNEL (ADC_CHAN1)
 #define ADC_PIN (4)
 
-void delay(){
-    struct timespec ts;
-    ts.tv_nsec = 100000000;
-    ts.tv_sec = 0;
-    nanosleep(&ts,&ts);
-}
-
 void TaskSample(void *pvParameters)
 {
     ADC_CFG_Type cfg = {
@@ -47,6 +40,8 @@ void TaskSample(void *pvParameters)
     ADC_Channel_Config(ADC_CHANNEL, ADC_CHAN_GND, 0);
     ADC_FIFO_Cfg(&fifo_cfg);
     bl_rtc_init();
+    TickType_t last_wake_time  = xTaskGetTickCount();
+    const TickType_t frequency = 100 / portTICK_PERIOD_MS;
     while (1)
     {   
         ADC_Start();
@@ -56,8 +51,8 @@ void TaskSample(void *pvParameters)
         uint32_t t = bl_rtc_get_timestamp_ms();
         // from ADC_Parse_Result
         unsigned int val = (unsigned int)(((regval & 0xffff) >> 4) / 1);
+        vTaskDelayUntil(&last_wake_time, frequency);
         printf("%u,%u\n", t, val);
-        delay();
     }
 }
 
